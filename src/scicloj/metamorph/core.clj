@@ -4,7 +4,7 @@
   [& ops]
   (let [ops-with-id (map-indexed vector ops)] ;; add consecutive number to each operation
     (fn local-pipeline
-      ([] (local-pipeline {}))
+      ([] (local-pipeline {})) ;; can be called without a context
       ([ctx]
        (let [ctx (if-not (map? ctx)
                    {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
@@ -83,6 +83,9 @@
 ;; lifting
 
 (defn lift
+  "Create context aware version of the given `op` function. `:metamorph/data` will be used as a first parameter.
+
+  Result of the `op` function will be stored under `:metamorph/data`"
   [op & params]
   (fn [ctx]
     (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params))))
