@@ -3,17 +3,19 @@
 (defn pipeline
   [& ops]
   (let [ops-with-id (map-indexed vector ops)] ;; add consecutive number to each operation
-    (fn [ctx]
-      (let [ctx (if-not (map? ctx)
-                  {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
-        (dissoc (reduce (fn [curr-ctx [id op]]       ;; go through operations
-                          (if (keyword? op) ;; bare keyword means a mode!
-                            (assoc curr-ctx :metamorph/mode op) ;; set current mode
-                            (-> curr-ctx 
-                                (assoc :metamorph/id id) ;; assoc id of the operation
-                                (op)                     ;; call it
-                                (dissoc :metamorph/id)))) ;; dissoc id
-                        ctx ops-with-id) :metamorph/mode))))) ;; dissoc mode
+    (fn local-pipeline
+      ([] (local-pipeline {}))
+      ([ctx]
+       (let [ctx (if-not (map? ctx)
+                   {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
+         (dissoc (reduce (fn [curr-ctx [id op]]       ;; go through operations
+                           (if (keyword? op) ;; bare keyword means a mode!
+                             (assoc curr-ctx :metamorph/mode op) ;; set current mode
+                             (-> curr-ctx 
+                                 (assoc :metamorph/id id) ;; assoc id of the operation
+                                 (op)                     ;; call it
+                                 (dissoc :metamorph/id)))) ;; dissoc id
+                         ctx ops-with-id) :metamorph/mode)))))) ;; dissoc mode
 
 (declare process-param)
 
@@ -77,3 +79,10 @@
                                             (apply f nparams))
                        (keyword? line) (maybe-var-get line)
                        :else line))))) ;; leave untouched otherwise
+
+;; lifting
+
+(defn lift
+  [op & params]
+  (fn [ctx]
+    (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params))))

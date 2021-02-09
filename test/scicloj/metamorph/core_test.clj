@@ -81,3 +81,27 @@
   (t/is (= (dpipeline-1 (assoc (dpipeline-1 []) :metamorph/mode :some-mode)) res12))
   (t/is (= (dpipeline-2 []) res21))
   (t/is (= (dpipeline-2 (assoc (dpipeline-2 []) :metamorph/mode :some-mode)) res22)))
+
+;; lifting
+
+(defn regular-function-to-be-lifted
+  [_main-object par1 par2]
+  (str "Hey, I'm regular function! (pars: " par1 ", " par2 ")"))
+
+(def lifted-pipeline
+  (sut/pipeline
+   :anymode
+   (sut/lift regular-function-to-be-lifted 1 2)))
+
+(def declarative-lifted-pipeline
+  (sut/->pipeline
+   [:anymode
+    [:sut/lift ::regular-function-to-be-lifted 1 2]]))
+
+(def expected-result
+  {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)"})
+
+(t/deftest lift-function
+  (t/is (= ((sut/lift regular-function-to-be-lifted 1 2) {}) expected-result))
+  (t/is (= (lifted-pipeline) expected-result))
+  (t/is (= (declarative-lifted-pipeline) expected-result)))
