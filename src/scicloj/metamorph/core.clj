@@ -1,4 +1,5 @@
-(ns scicloj.metamorph.core)
+(ns scicloj.metamorph.core
+  (:require [scicloj.metamorph.protocols :as prot]))
 
 (defn pipeline
   [& ops]
@@ -87,5 +88,8 @@
 
   Result of the `op` function will be stored under `:metamorph/data`"
   [op & params]
-  (fn [ctx]
-    (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params))))
+  (if (satisfies? prot/MetamorphProto op)
+    (prot/lift op params)
+    (fn [ctx]
+      (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
+

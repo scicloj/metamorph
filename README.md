@@ -2,6 +2,25 @@
 
 A Clojure library designed to providing pipelining operations.
 
+### Pipeline operation
+
+Pipeline operation is a function which accepts context as a map and returns possibly modified context map.
+
+#### Context
+
+Context is just a map where pipeline information is stored. There are three reserved keys which are supposed to help organize a pipeline:
+
+* `:metamorph/data` - object which is subject to change and where the main data is stored. It can be anything: dataset, tensor, object, whatever you want
+* `:metamorph/id` - unique operation number which is injected to the context just before pipeline operation is called. This way pipeline operation have some identity which can be used to store and restore private data in the context.
+* `:metamorph/mode` - additional context information which can be used to determine pipeline phase. It can be added explicitely during pipeline creation.
+
+#### Creating a pipeline
+
+To create a pipeline you can use two functions:
+
+* `pipeline` to make a pipeline function out of pipeline operators
+* `->pipeline` as an above, but using declarations
+
 ## Usage
 
 TODO!

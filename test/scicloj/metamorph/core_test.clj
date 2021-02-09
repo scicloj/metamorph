@@ -1,6 +1,7 @@
 (ns scicloj.metamorph.core-test
   (:require [scicloj.metamorph.core :as sut]
-            [clojure.test :as t]))
+            [clojure.test :as t]
+            [scicloj.metamorph.protocols :as prot]))
 
 (defn context-operator
   [ctx]
@@ -88,6 +89,11 @@
   [_main-object par1 par2]
   (str "Hey, I'm regular function! (pars: " par1 ", " par2 ")"))
 
+(def object-that-can-be-lifted
+  (reify prot/MetamorphProto
+    (lift [_ args]
+      (apply sut/lift regular-function-to-be-lifted args))))
+
 (def lifted-pipeline
   (sut/pipeline
    :anymode
@@ -98,10 +104,22 @@
    [:anymode
     [:sut/lift ::regular-function-to-be-lifted 1 2]]))
 
+(def object-pipeline
+  (sut/pipeline
+   (sut/lift object-that-can-be-lifted 1 2)))
+
+(def declarative-object-pipeline
+  (sut/->pipeline
+   [:anymode
+    [:sut/lift ::object-that-can-be-lifted 1 2]]))
+
+
 (def expected-result
   {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)"})
 
 (t/deftest lift-function
   (t/is (= ((sut/lift regular-function-to-be-lifted 1 2) {}) expected-result))
   (t/is (= (lifted-pipeline) expected-result))
-  (t/is (= (declarative-lifted-pipeline) expected-result)))
+  (t/is (= (declarative-lifted-pipeline) expected-result))
+  (t/is (= (object-pipeline) expected-result))
+  (t/is (= (declarative-object-pipeline) expected-result)))
