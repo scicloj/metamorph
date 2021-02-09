@@ -6,14 +6,14 @@
     (fn [ctx]
       (let [ctx (if-not (map? ctx)
                   {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
-        (reduce (fn [curr-ctx [id op]] ;; go through operations
-                  (if (keyword? op) ;; bare keyword means a mode!
-                    (assoc curr-ctx :metamorph/mode op) ;; set current mode
-                    (-> curr-ctx 
-                        (assoc :metamorph/id id) ;; assoc id of the operation
-                        (op) ;; call it
-                        (dissoc :metamorph/id)))) ;; dissoc id
-                ctx ops-with-id)))))
+        (dissoc (reduce (fn [curr-ctx [id op]]       ;; go through operations
+                          (if (keyword? op) ;; bare keyword means a mode!
+                            (assoc curr-ctx :metamorph/mode op) ;; set current mode
+                            (-> curr-ctx 
+                                (assoc :metamorph/id id) ;; assoc id of the operation
+                                (op)                     ;; call it
+                                (dissoc :metamorph/id)))) ;; dissoc id
+                        ctx ops-with-id) :metamorph/mode))))) ;; dissoc mode
 
 (declare process-param)
 
@@ -66,12 +66,14 @@
   ([ops] (->pipeline {} ops))
   ([config ops]
    (apply pipeline (for [line ops]
-                     (if (sequential? line) ;; if it's a sequence, resolve function, process parameters and call it.
-                       (let [[op & params] line
-                             nparams (process-param config params)
-                             f (cond
-                                 (keyword? op) (maybe-var-get op)
-                                 (symbol? op) (var-get (resolve op))
-                                 :else op)]
-                         (apply f nparams))
-                       line))))) ;; leave untouched otherwise
+                     (cond
+                       ;; if it's a sequence, resolve function, process parameters and call it.
+                       (sequential? line) (let [[op & params] line
+                                                nparams (process-param config params)
+                                                f (cond
+                                                    (keyword? op) (maybe-var-get op)
+                                                    (symbol? op) (var-get (resolve op))
+                                                    :else op)]
+                                            (apply f nparams))
+                       (keyword? line) (maybe-var-get line)
+                       :else line))))) ;; leave untouched otherwise
