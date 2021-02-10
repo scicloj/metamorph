@@ -15,8 +15,8 @@ Context is just a map where pipeline information is stored. There are three rese
 * `:metamorph/mode` - additional context information which can be used to determine pipeline phase. It can be added explicitely during pipeline creation.
   Different pipeline functions can work together, if they agree on a common set of modes and act accordingly depending on the mode.
   The main use case for this are pipelines which include a statistical model in some form. In here the model either gets fitted on the data (= learns form data) or it gets applied to data. For this common use case we define two standard modes, namely:
-    * `:metamorph/fit`  - While the pipeline has this mode, any function in the pipeline should fit its model it from the data , this is as well called "train". It should write as well the fitted model to the key in `:metamorph/id` so, that on the next pipeline run in mode `transform` it can be used
-    * `:metamorph/transform` - While the pipeline is in this mode, the fitted model should be read from the key in `:metamorph/id` and applied to the data:
+    * `:fit`  - While the pipeline has this mode, any function in the pipeline should fit its model it from the data , this is as well called "train". It should write as well the fitted model to the key in `:metamorph/id` so, that on the next pipeline run in mode `transform` it can be used
+    * `:transform` - While the pipeline is in this mode, the fitted model should be read from the key in `:metamorph/id` and applied to the data:
  In machine learning terminology, these tow modes are typically called train and predict. In metamorph we use the fit/transform terms as well for machine learning pipelines.
  
 ### Compliant functions
