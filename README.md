@@ -26,6 +26,8 @@ All the steps of a metamorph pipeline are function which need to follow the foll
 * The value of a compliant function, need to be a a function which value is a map by itself. The function is allowed to add any keys with any value to the map, but should normally not remove any key. 
 * The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, need nevertheless return  the whole context map.
 * Each function which reads or  writes specific keys to the pipeline context, should document this and use namespaced keys to avoid conflicts
+* Any pipleine function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
+   * They should be pure functions
 
 ### Metamorph compliant libraries
 The existing clojure libraries `tablecloth`,`tech.ml.dataset` and `tech.ml` will be extended to make methamorph compliant functions available.
