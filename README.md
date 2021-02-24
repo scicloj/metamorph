@@ -21,17 +21,17 @@ Context is just a map where pipeline information is stored. There are three rese
 
  In machine learning terminology, these 2 modes are typically called train and predict. In metamorph we use the fit/transform terms as well for machine learning pipelines.
 
-Functions which only manipulate the dataset, will should simply behave the same in any :mode, so ignoring `:metamorph/mode`
+Functions which only manipulate the data, should simply behave the same in any :mode, so ignoring `:metamorph/mode`
 
 ### Compliant functions
 All the steps of a metamorph pipeline are function which need to follow the following conventions, in order to work well together:
 
 * Be usual Clojure functions which have at least one parameter, and this first parameter need to be a map. This map can contain any key.
 * The value of a compliant function, need to be a a function which value is the context map by. The function is allowed to add any keys with any value to the map, but should normally not remove any key. 
-* The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, need nevertheless return  the whole context map.
+* The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, need nevertheless return  the whole context map with the data at key `:metamorhph/data`
 * Each function which reads or  writes specific keys to the pipeline context, should document this and use namespaced keys to avoid conflicts
-* Any pipleine function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
-   * They should be pure functions
+* Any pipeleine function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
+   * Pipeline functions should be pure functions
 
 A typical skeleton of a compliant function looks like this:
 
@@ -46,7 +46,7 @@ A typical skeleton of a compliant function looks like this:
 ```
 
 ### Metamorph compliant libraries
-The existing clojure libraries `tablecloth`,`tech.ml.dataset` and `tech.ml` will be extended to make methamorph compliant functions available.
+The existing clojure libraries `tablecloth`,`tech.ml.dataset` and `tech.ml` will be extended to make metamorph compliant functions available.
 
 ### Similar concept in sklearn pipelines
 The `metamorph` concept is similar to the `pipeline` concept of sklearn, which allows as well to run a give pipeline in `fit` and `transform`.
@@ -57,12 +57,12 @@ But metamorph allows to combine models with arbitrary transform functions, which
 
 We foresee that mainly 2 types of functions get added to a pipeline.
 
-1. `State independend functions:` They only manipulate the main data object, and will ignore all other information in contexts.
+1. `Mode independend functions:` They only manipulate the main data object, and will ignore all other information in contexts.
   Neither will they use `:metamorph/mode` nor the `:metamorph/id` in the context map.
-2. `State dependend functions`: These functions will behave different depending on the :mode and will likely store data in the context map, which can be used by the same function in an other mode or by other functions later in the pipeline.
+2. `Mode dependend functions`: These functions will behave different depending on the :mode and will likely store data in the context map, which can be used by the same function in an other mode or by other functions later in the pipeline.
 
 ### Pipelines can be constructed from functions or as pure data
-Metamorph pipelines can be either constructed from a sequence of function calls or declarative as a sequence of maps.
+Metamorph pipelines can be either constructed from a sequence of function calls via th function `metmorhp.core/pipeline` or declarative as a sequence of maps.
 
 Both rely on the same functions.
 
@@ -84,12 +84,41 @@ which gives large flexibility for hyper parameter tuning in machine learning.
 
 To create a pipeline function you can use two functions:
 
-* `pipeline` to make a pipeline function out of pipeline operators (= compliant functions as described above)
-* `->pipeline` as an above, but using declarative maps (describing as well compliant functions)
+* `metamorph.core/pipeline` to make a pipeline function out of pipeline operators (= compliant functions as described above)
+* `metamorph.core/->pipeline` wroks as above, but using declarative maps (describing as well compliant functions) to describe the pipelin
 
 ## Usage
 
-TODO!
+Compliant pipeline-fn can either be created by "lifting" functions which work on the data object itself,
+or by using them from compliant libraries.
+
+Most functions in [tablecloth](https://github.com/scicloj/tablecloth) take a dataset as input in first position, and return a dataset.
+This means they can be used with the function "metamorhp.core/lift" to be converted (lifted) into a metamorph compliant function.
+(Tabecloth will make lifted versions of their functions available soon)
+
+In this short example, the main data object in the context is a simple string.
+
+
+```clojure 
+(require '[scicloj.metamorph.core :as morph])
+
+;; a regular function which takes and returns a main object 
+(defn regular-function-to-be-lifted
+  [main-object par1 par2]
+  (str "Hey, " (clojure.string/upper-case main-object) " , I'm regular function! (pars: " par1 ", " par2 ")"))
+
+;; we make a pipeline-fn using `lift` and the regular function
+
+(def lifted-pipeline
+  (morph/pipeline
+   :anymode
+   (morph/lift regular-function-to-be-lifted 1 2)))
+
+;; lifted-pipeline is a regular Clojure function, taking the context in first place
+(lifted-pipeline {:metamorph/data "main data project"} ) 
+;;->
+:metamorph{:data "Hey, MAIN DATA PROJECT , I'm regular function! (pars: 1, 2)"}
+````
 
 ## License
 
