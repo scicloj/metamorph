@@ -15,19 +15,35 @@ Context is just a map where pipeline information is stored. There are three rese
 * `:metamorph/mode` - additional context information which can be used to determine pipeline phase. It can be added explicitely during pipeline creation.
   Different pipeline functions can work together, if they agree on a common set of modes and act accordingly depending on the mode.
   The main use case for this are pipelines which include a statistical model in some form. In here the model either gets fitted on the data (= learns form data) or it gets applied to data. For this common use case we define two standard modes, namely:
-    * `:fit`  - While the pipeline has this mode, any function in the pipeline should fit its model it from the data , this is as well called "train". It should write as well the fitted model to the key in `:metamorph/id` so, that on the next pipeline run in mode `transform` it can be used
+    * `:fit`  - While the pipeline has this mode, a model containing function in the pipeline should fit its model from the data , this is as well called "train". It should write as well the fitted model to the key in `:metamorph/id` so, that on the next pipeline run in mode `transform` it can be used
     * `:transform` - While the pipeline is in this mode, the fitted model should be read from the key in `:metamorph/id` and applied to the data:
- In machine learning terminology, these tow modes are typically called train and predict. In metamorph we use the fit/transform terms as well for machine learning pipelines.
- 
+
+
+ In machine learning terminology, these 2 modes are typically called train and predict. In metamorph we use the fit/transform terms as well for machine learning pipelines.
+
+Functions which only manipulate the dataset, will should simply behave the same in any :mode, so ignoring `:metamorph/mode`
+
 ### Compliant functions
 All the steps of a metamorph pipeline are function which need to follow the following conventions, in order to work well together:
 
 * Be usual Clojure functions which have at least one parameter, and this first parameter need to be a map. This map can contain any key.
-* The value of a compliant function, need to be a a function which value is a map by itself. The function is allowed to add any keys with any value to the map, but should normally not remove any key. 
+* The value of a compliant function, need to be a a function which value is the context map by. The function is allowed to add any keys with any value to the map, but should normally not remove any key. 
 * The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, need nevertheless return  the whole context map.
 * Each function which reads or  writes specific keys to the pipeline context, should document this and use namespaced keys to avoid conflicts
 * Any pipleine function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
    * They should be pure functions
+
+A typical skeleton of a compliant function looks like this:
+
+```clojure
+(defn my-data-transform-function [options]
+  (fn [{:metamorph/keys [id data mode] :as ctx}]
+    ;; do something with data and eventual with id, data, mode
+    ;; and write it back somewhere in the ctx often to key `:metamorph/data`, but could be any key
+    ;; the assoc makes as well sure, that other data in ctx is left unchanged
+    (assoc ctx :metamorph/data ......)
+      ))))
+```
 
 ### Metamorph compliant libraries
 The existing clojure libraries `tablecloth`,`tech.ml.dataset` and `tech.ml` will be extended to make methamorph compliant functions available.
@@ -42,30 +58,34 @@ But metamorph allows to combine models with arbitrary transform functions, which
 We foresee that mainly 2 types of functions get added to a pipeline.
 
 1. `State independend functions:` They only manipulate the main data object, and will ignore all other information in contexts.
-  Neither will they use `mode` or the `id` in the context map.
-2. `State dependend functions`: These functions will behave different depending on the mode and will likely store data in the context map, which can be used by the same function in an other mode or by other functions later in the pipeline.
+  Neither will they use `:metamorph/mode` nor the `:metamorph/id` in the context map.
+2. `State dependend functions`: These functions will behave different depending on the :mode and will likely store data in the context map, which can be used by the same function in an other mode or by other functions later in the pipeline.
 
-### Pipelines can be constrcucted from function or as pure data
+### Pipelines can be constructed from functions or as pure data
 Metamorph pipelines can be either constructed from a sequence of function calls or declarative as a sequence of maps.
 
 Both rely on the same functions.
 
+See here for examples:
+https://github.com/scicloj/tablecloth/blob/pipelines/src/tablecloth/pipeline.clj
+
 This should allow advanced use cases, like the **generation** of pipelines,
 which gives large flexibility for hyper parameter tuning in machine learning.
+
 ### Advantages of the metamorph concept
 
 * A complete (machine learning) pipeline becomes self contained. All information (data and "state" of models) is inside the pipeline context
-* All steps of the pipeline are pure functions, which outcome depends only on its context map parameter and eventual options
-* It unifies the data pipeleine idea ot `tablecloth` with the concept of fitted models
-* Only pure Clojure data structures
-* No dependency to any concrete data manipulation library, but all can be integrated easely
+* All steps of the pipeline are pure functions, which outcome depends only on its context map parameter (containing the data) and eventual options
+* It unifies the data processing pipeline idea of `tablecloth` with the concept of fitted models and machine learining
+* It uses only pure Clojure data structures
+* It has no dependency to any concrete data manipulation library, but all can be integrated easely based on a small number of agreed map keys
  
 #### Creating a pipeline
 
-To create a pipeline you can use two functions:
+To create a pipeline function you can use two functions:
 
-* `pipeline` to make a pipeline function out of pipeline operators
-* `->pipeline` as an above, but using declarations
+* `pipeline` to make a pipeline function out of pipeline operators (= compliant functions as described above)
+* `->pipeline` as an above, but using declarative maps (describing as well compliant functions)
 
 ## Usage
 
