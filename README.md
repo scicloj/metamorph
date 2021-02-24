@@ -38,7 +38,7 @@ A typical skeleton of a compliant function looks like this:
 ```clojure
 (defn my-data-transform-function [options]
   (fn [{:metamorph/keys [id data mode] :as ctx}]
-    ;; do something with data and eventual with id, data, mode
+    ;; do something with data and eventual with id and mode
     ;; and write it back somewhere in the ctx often to key `:metamorph/data`, but could be any key
     ;; the assoc makes as well sure, that other data in ctx is left unchanged
     (assoc ctx :metamorph/data ......)
