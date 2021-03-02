@@ -4,6 +4,22 @@
 
 A Clojure library designed to providing pipelining operations.
 
+It allows to express any data transformation and machine learning pipeline as a simple sequence of pure functions:
+
+```clojure
+(def pipe
+  (pipeline
+   (select-columns [:Text :Score])
+   (count-vectorize :Text :bow nlp/default-text->bow {})
+   (bow->sparse-array :bow :bow-sparse #(nlp/->vocabulary-top-n % 1000))
+   (set-inference-target :Score)
+   (ds/select-columns [:bow-sparse :Score])
+   (model {:p 1000
+           :model-type :maxent-multinomial
+           :sparse-column :bow-sparse})))
+```                 
+
+
 Several code examples for metamorph are available in this repo [metamorph-examples](https://github.com/scicloj/metamorph-examples)
 
 ### Pipeline operation
