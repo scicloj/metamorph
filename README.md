@@ -1,3 +1,5 @@
+[![Clojars Project](https://img.shields.io/clojars/v/scicloj/metamorph.svg)](https://clojars.org/scicloj/metamorph
+
 # metamorph
 
 A Clojure library designed to providing pipelining operations.
