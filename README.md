@@ -2,6 +2,8 @@
 
 A Clojure library designed to providing pipelining operations.
 
+Several code examples for metamorph are available in this repo [metamorph-examples](https://github.com/scicloj/metamorph-examples)
+
 ### Pipeline operation
 
 Pipeline operation is a function which accepts context as a map and returns possibly modified context map.
