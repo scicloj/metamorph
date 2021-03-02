@@ -1,4 +1,4 @@
-[![Clojars Project](https://img.shields.io/clojars/v/scicloj/metamorph.svg)](https://clojars.org/scicloj/metamorph
+[![Clojars Project](https://img.shields.io/clojars/v/scicloj/metamorph.svg)](https://clojars.org/scicloj/metamorph)
 
 # metamorph
 
