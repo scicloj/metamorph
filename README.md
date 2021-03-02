@@ -20,27 +20,28 @@ Context is just a map where pipeline information is stored. There are three rese
   Different pipeline functions can work together, if they agree on a common set of modes and act accordingly depending on the mode.
   The main use case for this are pipelines which include a statistical model in some form. In here the model either gets fitted on the data (= learns form data) or it gets applied to data. For this common use case we define two standard modes, namely:
     * `:fit`  - While the pipeline has this mode, a model containing function in the pipeline should fit its model from the data , this is as well called "train". It should write as well the fitted model to the key in `:metamorph/id` so, that on the next pipeline run in mode `transform` it can be used
-    * `:transform` - While the pipeline is in this mode, the fitted model should be read from the key in `:metamorph/id` and applied to the data:
+    * `:transform` - While the pipeline is in this mode, the fitted model should be read from the key in `:metamorph/id` and apply the fitted model to the data
 
 
- In machine learning terminology, these 2 modes are typically called train and predict. In metamorph we use the fit/transform terms as well for machine learning pipelines.
+ In machine learning terminology, these 2 modes are typically called train and predict. In metamorph we use the fit/transform terms as the generalisation.
 
 Functions which only manipulate the data, should simply behave the same in any :mode, so ignoring `:metamorph/mode`
 
-### Compliant functions
-All the steps of a metamorph pipeline are function which need to follow the following conventions, in order to work well together:
+### Compliant operations
+All the steps of a metamorph pipeline are functions which need to follow the following conventions, in order to work well together:
 
-* Be usual Clojure functions which have at least one parameter, and this first parameter need to be a map. This map can contain any key.
-* The value of a compliant function, need to be a a function which value is the context map by. The function is allowed to add any keys with any value to the map, but should normally not remove any key. 
-* The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, need nevertheless return  the whole context map with the data at key `:metamorhph/data`
+* Be usual Clojure functions which have at least one parameter, and this first parameter need to be a mapm teh context map. This map can potentially contain any key.
+* Keys of namespace :metamorph/xxx should be avoided and are reserved for usage by metamorph itself.
+* The value of a compliant function, need to be a function which takes as input the context and which value is the context. The function is allowed to add any keys with any value to the context map, but should not remove any key. 
+* The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, needs nevertheless return  the whole context map with the data at key `:metamorph/data`
 * Each function which reads or  writes specific keys to the pipeline context, should document this and use namespaced keys to avoid conflicts
-* Any pipeleine function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
+* Any pipeline function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
    * Pipeline functions should be pure functions
 
 A typical skeleton of a compliant function looks like this:
 
 ```clojure
-(defn my-data-transform-function [options]
+(defn my-data-transform-function [any number of options]
   (fn [{:metamorph/keys [id data mode] :as ctx}]
     ;; do something with data and eventual with id and mode
     ;; and write it back somewhere in the ctx often to key `:metamorph/data`, but could be any key
@@ -52,10 +53,17 @@ A typical skeleton of a compliant function looks like this:
 ### Metamorph compliant libraries
 The existing clojure libraries `tablecloth`,`tech.ml.dataset` and `tech.ml` will be extended to make metamorph compliant functions available.
 
+Other libraries which do "data transformations" can decide to make their functions metamorph compliant.
+This does not require any dependency on metamorhp, just the usage of the standard keys. 
+
+Functions can easely be lifted to become metamorph compliant. For this we have the function `metamorph/lift"
+
 ### Similar concept in sklearn pipelines
 The `metamorph` concept is similar to the `pipeline` concept of sklearn, which allows as well to run a give pipeline in `fit` and `transform`.
 But metamorph allows to combine models with arbitrary transform functions, which don't need to be models.
 
+### Methamorph.ml
+A sister project [metamorph.ml](https://github.com/scicloj/metamorph.ml) allows to evaluate machine learning pipelines based on metamorph.
 
 ### Two types of functions in pipeline
 
@@ -93,7 +101,7 @@ To create a pipeline function you can use two functions:
 
 ## Usage
 
-Compliant pipeline-fn can either be created by "lifting" functions which work on the data object itself,
+Compliant pipeline operations can either be created by "lifting" functions which work on the data object itself,
 or by using them from compliant libraries.
 
 Most functions in [tablecloth](https://github.com/scicloj/tablecloth) take a dataset as input in first position, and return a dataset.
