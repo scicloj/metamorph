@@ -25,7 +25,7 @@
   [:context-operator ;; existing symbol, will be resolved
    [:operator-creator 3 4] ;; explicit data
    [:operator-creator ::local-value1 ::local-value2] ;; access local variables
-   :new-mode ;; this is changed mode
+   {:metamorph/mode :new-mode} ;; this is changed mode
    :context-operator
    [:operator-creator :ctx/a :ctx/b]]) ;; optional parameters
 
@@ -38,7 +38,7 @@
    context-operator
    (operator-creator 3 4)
    (operator-creator local-value1 local-value2)
-   :new-mode
+   {:metamorph/mode :new-mode}
    context-operator
    (operator-creator a b)))
 
@@ -73,6 +73,31 @@
             4 {:modes '(:new-mode :new-mode)}
             5 1100})
 
+
+(def pipeline-3
+  (sut/pipeline
+   {:metamorph/id :test-id}
+   (operator-creator 1 2)
+   ))
+
+(t/deftest ovewrite-id
+  (t/is (= 3
+           (:test-id (pipeline-3 [])))))
+
+(def dpipeline-3
+  (sut/->pipeline
+   [
+    {:metamorph/id :test-id}
+    [:operator-creator 1 2]]
+   ))
+
+
+(t/deftest ovewrite-id-d
+  (t/is (= 3
+           (:test-id (dpipeline-3 [])))))
+
+
+
 (t/deftest whole-process
   (t/is (= (pipeline-1 []) res11))
   (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
@@ -82,6 +107,9 @@
   (t/is (= (dpipeline-1 (assoc (dpipeline-1 []) :metamorph/mode :some-mode)) res12))
   (t/is (= (dpipeline-2 []) res21))
   (t/is (= (dpipeline-2 (assoc (dpipeline-2 []) :metamorph/mode :some-mode)) res22)))
+
+
+
 
 ;; lifting
 
