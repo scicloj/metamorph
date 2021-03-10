@@ -113,7 +113,7 @@ which gives large flexibility for hyper parameter tuning in machine learning.
 To create a pipeline function you can use two functions:
 
 * `metamorph.core/pipeline` to make a pipeline function out of pipeline operators (= compliant functions as described above)
-* `metamorph.core/->pipeline` wroks as above, but using declarative maps (describing as well compliant functions) to describe the pipelin
+* `metamorph.core/->pipeline` works as above, but using declarative maps (describing as well compliant functions) to describe the pipeline
 
 ## Usage
 
