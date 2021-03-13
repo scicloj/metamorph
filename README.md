@@ -67,19 +67,28 @@ A typical skeleton of a compliant function looks like this:
 ```
 
 ### Metamorph compliant libraries
-The existing clojure libraries `tablecloth`,`tech.ml.dataset` and `tech.ml` will be extended to make metamorph compliant functions available.
+The following libraries provied metamorph compliant functions in a recent version:
+
+|library          |   purpose              |  link                                             |
+|-----------------|------------------------|-------------------------------------------------- |
+|tablecloth       |  dataset manipulation  |  https://github.com/scicloj/tablecloth            |
+|tech.ml.dataset  |  dataset manipulation  |  https://github.com/techascent/tech.ml.dataset    |
+|tech.ml          |  machine learning    |  https://github.com/techascent/tech.ml              |
+|sklearn-clj      |  sklearn estimators as metamorph |  https://github.com/scicloj/sklearn-clj |
+
 
 Other libraries which do "data transformations" can decide to make their functions metamorph compliant.
 This does not require any dependency on metamorhp, just the usage of the standard keys. 
 
 Functions can easely be lifted to become metamorph compliant. For this we have the function `metamorph/lift"
 
+### Methamorph.ml
+A sister project [metamorph.ml](https://github.com/scicloj/metamorph.ml) allows to evaluate machine learning pipelines based on metamorph.
+
 ### Similar concept in sklearn pipelines
 The `metamorph` concept is similar to the `pipeline` concept of sklearn, which allows as well to run a give pipeline in `fit` and `transform`.
 But metamorph allows to combine models with arbitrary transform functions, which don't need to be models.
 
-### Methamorph.ml
-A sister project [metamorph.ml](https://github.com/scicloj/metamorph.ml) allows to evaluate machine learning pipelines based on metamorph.
 
 ### Two types of functions in pipeline
 
