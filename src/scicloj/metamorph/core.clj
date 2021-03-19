@@ -1,21 +1,25 @@
 (ns scicloj.metamorph.core
   (:require [scicloj.metamorph.protocols :as prot]))
 
+
+(defn uuid []
+  (str (java.util.UUID/randomUUID)))
+
 (defn pipeline
   [& ops]
-  (let [ops-with-id (map-indexed vector ops)] ;; add consecutive number to each operation
+  (let [ops-with-id (mapv #(vector (uuid) %) ops)] ;; add uuid to each operation
     (fn local-pipeline
       ([] (local-pipeline {})) ;; can be called without a context
       ([ctx]
        (let [ctx (if-not (map? ctx)
                    {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
-         (dissoc (reduce (fn [curr-ctx [id op]]       ;; go through operations
+         (dissoc (reduce (fn [curr-ctx [id op]] ;; go through operations
                            (if (map? op) ;; map means to be merged with following operation
                              (merge curr-ctx op) ;; set current mode
-                             (-> curr-ctx 
+                             (-> curr-ctx
                                  (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
-                                 (op)                     ;; call it
-                                 (dissoc :metamorph/id)))) ;; dissoc id
+                                 (op)                           ;; call it
+                                 (dissoc :metamorph/id))))      ;; dissoc id
                          ctx ops-with-id) :metamorph/mode)))))) ;; dissoc mode
 
 (declare process-param)

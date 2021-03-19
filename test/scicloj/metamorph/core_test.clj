@@ -1,14 +1,29 @@
 (ns scicloj.metamorph.core-test
   (:require [scicloj.metamorph.core :as sut]
             [clojure.test :as t]
-            [scicloj.metamorph.protocols :as prot]))
+            [scicloj.metamorph.protocols :as prot]
+            ))
+
+
+(defn gen-rand
+  [s]
+  (let [x (atom s)]
+    #(let [n (first @x)]
+       (swap! x rest)
+       n)))
+
+
 
 (defn context-operator
   [ctx]
+  ;; (def ctx ctx )
   (let [id (:metamorph/id ctx)        
         mode (:metamorph/mode ctx)
+
+        ;; _ (def id id)
         my-data (-> (ctx id)
                     (update :modes conj mode))]
+    ;; (def my-data my-ctx)
     (assoc ctx id my-data)))
 
 (defn operator-creator
@@ -29,8 +44,24 @@
    :context-operator
    [:operator-creator :ctx/a :ctx/b]]) ;; optional parameters
 
-(def dpipeline-1 (sut/->pipeline {:a -1 :b -2} pipeline-declaration))
-(def dpipeline-2 (sut/->pipeline {:a 100 :b 1000} pipeline-declaration))
+(with-redefs
+  [scicloj.metamorph.core/uuid
+   (gen-rand (range 10))
+   ]
+
+  )
+
+(def dpipeline-1
+  (with-redefs
+    [scicloj.metamorph.core/uuid
+     (gen-rand (range 10))]
+    (sut/->pipeline {:a -1 :b -2} pipeline-declaration)))
+
+(def dpipeline-2
+(with-redefs
+  [scicloj.metamorph.core/uuid
+   (gen-rand (range 10))]
+  (sut/->pipeline {:a 100 :b 1000} pipeline-declaration)))
 
 (defn make-pipeline
   [a b]
@@ -42,8 +73,18 @@
    context-operator
    (operator-creator a b)))
 
-(def pipeline-1 (make-pipeline -1 -2))
-(def pipeline-2 (make-pipeline 100 1000))
+(def pipeline-1
+  (with-redefs
+    [scicloj.metamorph.core/uuid
+     (gen-rand (range 10))]
+    (make-pipeline -1 -2)))
+
+(def pipeline-2
+  (with-redefs
+    [scicloj.metamorph.core/uuid
+     (gen-rand (range 10))]
+    (make-pipeline 100 1000)))
+
 
 (def res11 {:metamorph/data [[3 4] [123.1 432.1] [-1 -2]]
             0 {:modes '(nil)}
@@ -75,21 +116,27 @@
 
 
 (def pipeline-3
-  (sut/pipeline
+  (with-redefs
+    [scicloj.metamorph.core/uuid
+     (gen-rand (range 10))]
+ (sut/pipeline
    {:metamorph/id :test-id}
-   (operator-creator 1 2)
-   ))
+   (operator-creator 1 2))))
+
+
 
 (t/deftest ovewrite-id
   (t/is (= 3
            (:test-id (pipeline-3 [])))))
 
 (def dpipeline-3
-  (sut/->pipeline
-   [
-    {:metamorph/id :test-id}
-    [:operator-creator 1 2]]
-   ))
+  (with-redefs
+    [scicloj.metamorph.core/uuid
+     (gen-rand (range 10))]
+    (sut/->pipeline
+     [
+      {:metamorph/id :test-id}
+      [:operator-creator 1 2]])))
 
 
 (t/deftest ovewrite-id-d
@@ -99,6 +146,7 @@
 
 
 (t/deftest whole-process
+  
   (t/is (= (pipeline-1 []) res11))
   (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
   (t/is (= (pipeline-2 []) res21))
@@ -151,3 +199,6 @@
   (t/is (= (declarative-lifted-pipeline) expected-result))
   (t/is (= (object-pipeline) expected-result))
   (t/is (= (declarative-object-pipeline) expected-result)))
+
+
+(make-pipeline 1 2)
