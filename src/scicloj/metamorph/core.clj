@@ -13,14 +13,14 @@
       ([ctx]
        (let [ctx (if-not (map? ctx)
                    {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
-         (dissoc (reduce (fn [curr-ctx [id op]] ;; go through operations
-                           (if (map? op) ;; map means to be merged with following operation
-                             (merge curr-ctx op) ;; set current mode
-                             (-> curr-ctx
-                                 (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
-                                 (op)                           ;; call it
-                                 (dissoc :metamorph/id))))      ;; dissoc id
-                         ctx ops-with-id) :metamorph/mode)))))) ;; dissoc mode
+         (reduce (fn [curr-ctx [id op]]         ;; go through operations
+                   (if (map? op) ;; map means to be merged with following operation
+                     (merge curr-ctx op) ;; set current mode
+                     (-> curr-ctx
+                         (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
+                         (op)                       ;; call it
+                         (dissoc :metamorph/id))))  ;; dissoc id
+                 ctx ops-with-id) ))))) ;; dissoc mode
 
 (declare process-param)
 

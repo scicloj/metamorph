@@ -16,14 +16,10 @@
 
 (defn context-operator
   [ctx]
-  ;; (def ctx ctx )
-  (let [id (:metamorph/id ctx)        
+  (let [id (:metamorph/id ctx)
         mode (:metamorph/mode ctx)
-
-        ;; _ (def id id)
         my-data (-> (ctx id)
                     (update :modes conj mode))]
-    ;; (def my-data my-ctx)
     (assoc ctx id my-data)))
 
 (defn operator-creator
@@ -85,32 +81,40 @@
      (gen-rand (range 10))]
     (make-pipeline 100 1000)))
 
+(pipeline-1 [])
+;; => {:metamorph/data [[3 4] [123.1 432.1] [-1 -2]],
+;;     0 {:modes (nil)},
+;;     1 7,
+;;     2 555.2,
+;;     :metamorph/mode :new-mode,
+;;     4 {:modes (:new-mode)},
+;;     5 -3}
 
 (def res11 {:metamorph/data [[3 4] [123.1 432.1] [-1 -2]]
             0 {:modes '(nil)}
             1 7
-            2 555.2
+            2 555.2 :metamorph/mode :new-mode
             4 {:modes '(:new-mode)}
             5 -3})
 
 (def res12 {:metamorph/data [[3 4] [123.1 432.1] [-1 -2] [3 4] [123.1 432.1] [-1 -2]]
             0 {:modes '(:some-mode nil)}
             1 7
-            2 555.2
+            2 555.2 :metamorph/mode :new-mode
             4 {:modes '(:new-mode :new-mode)}
             5 -3})
 
 (def res21 {:metamorph/data [[3 4] [123.1 432.1] [100 1000]]
             0 {:modes '(nil)}
             1 7
-            2 555.2
+            2 555.2 :metamorph/mode :new-mode
             4 {:modes '(:new-mode)}
             5 1100})
 
 (def res22 {:metamorph/data [[3 4] [123.1 432.1] [100 1000] [3 4] [123.1 432.1] [100 1000]]
             0 {:modes '(:some-mode nil)}
             1 7
-            2 555.2
+            2 555.2 :metamorph/mode :new-mode
             4 {:modes '(:new-mode :new-mode)}
             5 1100})
 
@@ -147,17 +151,14 @@
 
 (t/deftest whole-process
   
-  (t/is (= (pipeline-1 []) res11))
-  (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
-  (t/is (= (pipeline-2 []) res21))
-  (t/is (= (pipeline-2 (assoc (pipeline-2 []) :metamorph/mode :some-mode)) res22))
-  (t/is (= (dpipeline-1 []) res11))
-  (t/is (= (dpipeline-1 (assoc (dpipeline-1 []) :metamorph/mode :some-mode)) res12))
-  (t/is (= (dpipeline-2 []) res21))
-  (t/is (= (dpipeline-2 (assoc (dpipeline-2 []) :metamorph/mode :some-mode)) res22)))
-
-
-
+  (t/is (= (pipeline-1 []) res11 ) )
+           (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
+           (t/is (= (pipeline-2 []) res21))
+           (t/is (= (pipeline-2 (assoc (pipeline-2 []) :metamorph/mode :some-mode)) res22))
+           (t/is (= (dpipeline-1 []) res11))
+           (t/is (= (dpipeline-1 (assoc (dpipeline-1 []) :metamorph/mode :some-mode)) res12))
+           (t/is (= (dpipeline-2 []) res21))
+           (t/is (= (dpipeline-2 (assoc (dpipeline-2 []) :metamorph/mode :some-mode)) res22)))
 
 ;; lifting
 
