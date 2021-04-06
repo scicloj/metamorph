@@ -82,8 +82,13 @@ This does not require any dependency on metamorhp, just the usage of the standar
 
 Functions can easely be lifted to become metamorph compliant. For this we have the function `metamorph/lift"
 
-### Methamorph.ml
+### methamorph.ml
 A sister project [metamorph.ml](https://github.com/scicloj/metamorph.ml) allows to evaluate machine learning pipelines based on metamorph.
+
+### scicloj.ml
+A machine learining solution based on metamorph pipelines including various classification and regression models.
+[scicloj.ml](https://github.com/scicloj/scicloj.ml)
+
 
 ### Similar concept in sklearn pipelines
 The `metamorph` concept is similar to the `pipeline` concept of sklearn, which allows as well to run a give pipeline in `fit` and `transform`.
