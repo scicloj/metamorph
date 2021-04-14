@@ -20,7 +20,7 @@
                          (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
                          (op)                       ;; call it
                          (dissoc :metamorph/id))))  ;; dissoc id
-                 ctx ops-with-id) ))))) ;; dissoc mode
+                 ctx ops-with-id) )))))
 
 (declare process-param)
 
@@ -95,5 +95,44 @@
   (if (satisfies? prot/MetamorphProto op)
     (prot/lift op params)
      (fn [ctx]
-      (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
+       (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
 
+
+(defn do-ctx
+  "Apply f:: ctx -> any, ignore the result, leaving
+   pipeline unaffected.  Akin to using doseq for side-effecting
+   operations like printing, visualization, or binding to vars
+   for debugging."
+  [f]
+  (fn [ctx] (f ctx) ctx))
+
+(defmacro def-ctx
+  "Convenience macro for defining pipelined operations that
+   bind the current value of the context to a var, for simple
+   debugging purposes."
+  [varname]
+  `(do-ctx (fn [ctx#] (def ~varname ctx#))))
+
+(defn pipe-it
+  "Given a pipeline specification ops  - a sequence of operations that
+   would be compatible with metamorph/pipeline, and an initial
+   dataset, applies the pipeline and returns the context."
+  ([data ops config]
+   ((->pipeline ops) (merge config {:metamorph/data data})))
+  ([data ops]
+   (pipe-it data ops {:metamorph/mode :fit}))
+  )
+
+(comment
+  (pipe-it
+   "hello"
+   [(lift clojure.string/upper-case)]
+   ;; {:metamorph/mode :fit}
+   )
+  (pipe-it
+   "hello"
+   [(lift clojure.string/upper-case)]
+   {:metamorph/mode :test}
+   )
+
+  )
