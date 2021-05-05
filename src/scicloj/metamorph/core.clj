@@ -116,13 +116,17 @@
 
 (defn pipe-it
   "Given a pipeline specification ops  - a sequence of operations that
-   would be compatible with metamorph/pipeline, and an initial
-   dataset, applies the pipeline and returns the context."
+   would be compatible with metamorph/pipeline, and initial
+   data, applies the pipeline and returns the context."
   ([data ops config]
    ((->pipeline ops) (merge config {:metamorph/data data})))
   ([data ops]
    (pipe-it data ops {:metamorph/mode :fit}))
   )
+
+
+
+
 
 (comment
   (pipe-it
