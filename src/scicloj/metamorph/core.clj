@@ -94,8 +94,9 @@
   [op & params]
   (if (satisfies? prot/MetamorphProto op)
     (prot/lift op params)
-     (fn [ctx]
-       (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
+    (fn [ctx]
+      (assert (contains? ctx :metamorph/data))
+      (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
 
 
 (defn do-ctx
