@@ -114,14 +114,23 @@
   [varname]
   `(do-ctx (fn [ctx#] (def ~varname ctx#))))
 
+
+
+
 (defn pipe-it
-  "Given a pipeline specification ops  - a sequence of operations that
-   would be compatible with metamorph/pipeline, and initial
-   data, applies the pipeline and returns the context."
-  ([data ops config]
-   ((->pipeline ops) (merge config {:metamorph/data data})))
-  ([data ops]
-   (pipe-it data ops {:metamorph/mode :fit}))
+  "Takes a data objects, executes the pipeline op(s) with it in :metamorph/data
+  in mode :fit and returns content of :metamorph/data.
+  Usefull to use execute a pipeline of pure data->data functions on some data"
+  [data & ops]
+  ;; (def ops ops)
+  ;; (def pipe-fn (apply pipeline ops))
+  ;; (def data data)
+  (let [pipe-fn (apply pipeline ops)]
+    (:metamorph/data
+     (pipe-fn {:metamorph/data data
+               :metamorph/mode :fit
+               }))
+    )
   )
 
 
@@ -132,12 +141,18 @@
   (pipe-it
    "hello"
    [(lift clojure.string/upper-case)]
-   ;; {:metamorph/mode :fit}
    )
+
   (pipe-it
    "hello"
-   [(lift clojure.string/upper-case)]
-   {:metamorph/mode :test}
+   (lift clojure.string/upper-case)
+   (lift clojure.string/lower-case)
+   )
+
+
+  (pipe-it2
+   "hello"
+   (lift clojure.string/upper-case)
    )
 
   )
