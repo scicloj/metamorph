@@ -81,7 +81,7 @@
      (gen-rand (range 10))]
     (make-pipeline 100 1000)))
 
-(pipeline-1 [])
+;; (pipeline-1 [])
 ;; => {:metamorph/data [[3 4] [123.1 432.1] [-1 -2]],
 ;;     0 {:modes (nil)},
 ;;     1 7,
@@ -195,11 +195,29 @@
   {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)"})
 
 (t/deftest lift-function
-  (t/is (= ((sut/lift regular-function-to-be-lifted 1 2) {}) expected-result))
+  (t/is (= ((sut/lift regular-function-to-be-lifted 1 2) {:metamorph/data nil}) expected-result))
   (t/is (= (lifted-pipeline) expected-result))
   (t/is (= (declarative-lifted-pipeline) expected-result))
   (t/is (= (object-pipeline) expected-result))
   (t/is (= (declarative-object-pipeline) expected-result)))
 
 
-(make-pipeline 1 2)
+(t/deftest fit-transform
+
+  (let [pipe-fn
+        (sut/pipeline
+         (sut/lift clojure.string/upper-case))
+
+        fitted
+        (sut/fit
+         "hello"
+         pipe-fn)
+
+        transformed
+        (sut/transform "world" pipe-fn fitted)]
+    (t/is (= "HELLO" (:metamorph/data fitted)))
+    (t/is (= :fit (:metamorph/mode fitted)))
+
+    (t/is (= "WORLD" (:metamorph/data transformed)))
+    (t/is (= :transform (:metamorph/mode transformed)))
+    ))

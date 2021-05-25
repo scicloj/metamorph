@@ -133,8 +133,27 @@
     )
   )
 
+(defn fit
+  "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
 
+  Main use is for cases in which the pipeline gets executed ones and no model is part of the pipeline."
+  [data & ops]
 
+  (let [pipe-fn (apply pipeline ops)]
+    (pipe-fn {:metamorph/data data
+              :metamorph/mode :fit
+              })))
+
+(defn transform
+  "Helper functions which execute the passed `pipe-fn` on the given `data` in mode :transform.
+  It merges the data into the provided `ctx` while doing so."
+  [data pipe-fn ctx]
+
+  (pipe-fn
+   (merge ctx
+          {:metamorph/data data
+           :metamorph/mode :transform
+           })))
 
 
 (comment
