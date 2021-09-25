@@ -1,8 +1,8 @@
 (ns scicloj.metamorph.core-test
   (:require [scicloj.metamorph.core :as sut]
             [clojure.test :as t]
-            [scicloj.metamorph.protocols :as prot]
-            ))
+            [scicloj.metamorph.protocols :as prot]))
+            
 
 
 (defn gen-rand
@@ -42,10 +42,10 @@
 
 (with-redefs
   [scicloj.metamorph.core/uuid
-   (gen-rand (range 10))
-   ]
+   (gen-rand (range 10))])
+   
 
-  )
+  
 
 (def dpipeline-1
   (with-redefs
@@ -54,10 +54,10 @@
     (sut/->pipeline {:a -1 :b -2} pipeline-declaration)))
 
 (def dpipeline-2
-(with-redefs
-  [scicloj.metamorph.core/uuid
-   (gen-rand (range 10))]
-  (sut/->pipeline {:a 100 :b 1000} pipeline-declaration)))
+ (with-redefs
+   [scicloj.metamorph.core/uuid
+    (gen-rand (range 10))]
+   (sut/->pipeline {:a 100 :b 1000} pipeline-declaration)))
 
 (defn make-pipeline
   [a b]
@@ -123,9 +123,9 @@
   (with-redefs
     [scicloj.metamorph.core/uuid
      (gen-rand (range 10))]
- (sut/pipeline
-   {:metamorph/id :test-id}
-   (operator-creator 1 2))))
+   (sut/pipeline
+     {:metamorph/id :test-id}
+     (operator-creator 1 2))))
 
 
 
@@ -151,14 +151,14 @@
 
 (t/deftest whole-process
   
-  (t/is (= (pipeline-1 []) res11 ) )
-           (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
-           (t/is (= (pipeline-2 []) res21))
-           (t/is (= (pipeline-2 (assoc (pipeline-2 []) :metamorph/mode :some-mode)) res22))
-           (t/is (= (dpipeline-1 []) res11))
-           (t/is (= (dpipeline-1 (assoc (dpipeline-1 []) :metamorph/mode :some-mode)) res12))
-           (t/is (= (dpipeline-2 []) res21))
-           (t/is (= (dpipeline-2 (assoc (dpipeline-2 []) :metamorph/mode :some-mode)) res22)))
+  (t/is (= (pipeline-1 []) res11))
+  (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
+  (t/is (= (pipeline-2 []) res21))
+  (t/is (= (pipeline-2 (assoc (pipeline-2 []) :metamorph/mode :some-mode)) res22))
+  (t/is (= (dpipeline-1 []) res11))
+  (t/is (= (dpipeline-1 (assoc (dpipeline-1 []) :metamorph/mode :some-mode)) res12))
+  (t/is (= (dpipeline-2 []) res21))
+  (t/is (= (dpipeline-2 (assoc (dpipeline-2 []) :metamorph/mode :some-mode)) res22)))
 
 ;; lifting
 
@@ -214,10 +214,22 @@
          pipe-fn)
 
         transformed
-        (sut/transform "world" pipe-fn fitted)]
+        (sut/transform-pipe "world" pipe-fn fitted)]
     (t/is (= "HELLO" (:metamorph/data fitted)))
     (t/is (= :fit (:metamorph/mode fitted)))
 
     (t/is (= "WORLD" (:metamorph/data transformed)))
-    (t/is (= :transform (:metamorph/mode transformed)))
-    ))
+    (t/is (= :transform (:metamorph/mode transformed)))))
+
+
+(comment
+  (defn do-on-string [s f]
+    (apply f s))
+
+  (def pip
+    (sut/->pipeline
+     [
+      [sut/lift ::do-on-string 'clojure.string/upper-case]]))
+
+
+  (pip {:metamorph/data  "a"}))

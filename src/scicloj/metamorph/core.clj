@@ -24,9 +24,9 @@
                      (merge curr-ctx op) ;; set current mode
                      (-> curr-ctx
                          (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
-                         (op)                       ;; call it
-                         (dissoc :metamorph/id))))  ;; dissoc id
-                 ctx ops-with-id) )))))
+                         (op)                      ;; call it
+                         (dissoc :metamorph/id)))) ;; dissoc id
+                 ctx ops-with-id))))))
 
 (declare process-param)
 
@@ -131,10 +131,10 @@
   (let [pipe-fn (apply pipeline ops)]
     (:metamorph/data
      (pipe-fn {:metamorph/data data
-               :metamorph/mode :fit
-               }))
-    )
-  )
+               :metamorph/mode :fit}))))
+               
+    
+  
 
 
 
@@ -145,8 +145,8 @@
   [data & ops]
   (let [pipe-fn (apply pipeline ops)]
     (pipe-fn {:metamorph/data data
-              :metamorph/mode :fit
-              })))
+              :metamorph/mode :fit})))
+              
 
 (defn fit-pipe
   "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
@@ -154,8 +154,8 @@
   Main use is for cases in which the pipeline gets executed ones and no model is part of the pipeline."
   [data pipe-fn]
   (pipe-fn {:metamorph/data data
-            :metamorph/mode :fit
-            }))
+            :metamorph/mode :fit}))
+            
 
 (defn transform-pipe
   "Helper functions which execute the passed `pipe-fn` on the given `data` in mode :transform.
@@ -165,26 +165,26 @@
   (pipe-fn
    (merge ctx
           {:metamorph/data data
-           :metamorph/mode :transform
-           })))
+           :metamorph/mode :transform})))
+           
 
 
 (comment
   (pipe-it
    "hello"
-   [(lift clojure.string/upper-case)]
-   )
+   [(lift clojure.string/upper-case)])
+   
 
   (pipe-it
    "hello"
    (lift clojure.string/upper-case)
-   (lift clojure.string/lower-case)
-   )
+   (lift clojure.string/lower-case))
+   
 
 
   (pipe-it2
    "hello"
-   (lift clojure.string/upper-case)
-   )
+   (lift clojure.string/upper-case)))
+   
 
-  )
+  
