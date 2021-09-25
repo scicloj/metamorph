@@ -6,6 +6,12 @@
   (java.util.UUID/randomUUID))
 
 (defn pipeline
+  "Create a metamorph pipeline function out of operators.
+
+  `ops` are metamorph compliant functions (basicaly fn, which takle a ctx as first argument)
+
+  This function returns a function, whcih can ve execute with a ctx as parameter.
+  "
   [& ops]
   (let [ops-with-id (mapv #(vector (uuid) %) ops)] ;; add uuid to each operation
     (fn local-pipeline
