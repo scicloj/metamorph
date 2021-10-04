@@ -22,10 +22,12 @@
          (reduce (fn [curr-ctx [id op]]         ;; go through operations
                    (if (map? op) ;; map means to be merged with following operation
                      (merge curr-ctx op) ;; set current mode
-                     (-> curr-ctx
-                         (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
-                         (op)                      ;; call it
-                         (dissoc :metamorph/id)))) ;; dissoc id
+                     (if (fn? op)
+                       (-> curr-ctx
+                           (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
+                           (op) ;; call it
+                           (dissoc :metamorph/id)) ;; dissoc id
+                       (throw (IllegalArgumentException. (str "Cannot call a non function: " op))))))
                  ctx ops-with-id))))))
 
 (declare process-param)
@@ -42,12 +44,17 @@
 (defn- resolve-keyword
   "Interpret keyword as a symbol and try to resolve it."
   [k]
-  (-> (if-let [n (namespace k)] ;; namespaced?
-        (let [sn (symbol n)
-              n (str (get (ns-aliases *ns*) sn sn))] ;; try to find namespace in aliases
-          (symbol n (name k))) ;; create proper symbol with fixed namespace
-        (symbol (name k))) ;; no namespace case
-      (resolve)))
+  ;; (println "resolve k: " k "in ns: " *ns*)
+  (let [resolved-as
+        (-> (if-let [n (namespace k)] ;; namespaced?
+              (let [sn (symbol n)
+                    n (str (get (ns-aliases *ns*) sn sn))] ;; try to find namespace in aliases
+                (symbol n (name k))) ;; create proper symbol with fixed namespace
+              (symbol (name k)))     ;; no namespace case
+            (resolve))]
+    ;; (println "resolved-as: " resolved-as)
+    resolved-as))
+
 
 (defn- maybe-var-get
   "If symbol can be resolved, return var, else return original keyword"
@@ -74,6 +81,13 @@
     (sequential? p) (process-seq config p)
     :else p))
 
+
+(defn log-and-apply [f args]
+  (if-not (fn? f)
+    (throw (IllegalArgumentException. (str  "Cannot apply a non-function: "  f "  - args: " args))))
+  (apply f args))
+
+
 (defn ->pipeline
   "Create pipeline from declarative description."
   ([ops] (->pipeline {} ops))
@@ -87,7 +101,7 @@
                                                     (keyword? op) (maybe-var-get op)
                                                     (symbol? op) (var-get (resolve op))
                                                     :else op)]
-                                            (apply f nparams))
+                                            (log-and-apply f nparams))
                        (keyword? line) (maybe-var-get line)
                        :else line))))) ;; leave untouched otherwise
 
