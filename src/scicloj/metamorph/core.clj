@@ -5,6 +5,17 @@
 (defn uuid []
   (java.util.UUID/randomUUID))
 
+
+(defn check-metamorph-compliant [ctx op]
+
+  (def op op)
+  (def ctx ctx)
+  (cond
+    (keyword? op) ctx
+    (not  (map? ctx)) (throw (IllegalArgumentException.  (str  "Metamorph pipe functions need to return a map, but returned: " ctx "of class: " (type ctx))))
+    (not  (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta #'op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
+    true ctx))
+
 (defn pipeline
   "Create a metamorph pipeline function out of operators.
 
@@ -22,10 +33,11 @@
          (reduce (fn [curr-ctx [id op]]         ;; go through operations
                    (if (map? op) ;; map means to be merged with following operation
                      (merge curr-ctx op) ;; set current mode
-                     (if (fn? op)
+                     (if (ifn? op)
                        (-> curr-ctx
                            (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
-                           (op) ;; call it
+                           (op)         ; call it
+                           (check-metamorph-compliant op)
                            (dissoc :metamorph/id)) ;; dissoc id
                        (throw (IllegalArgumentException. (str "Cannot call a non function: " op))))))
                  ctx ops-with-id))))))
@@ -84,9 +96,8 @@
 
 (defn log-and-apply [f args]
   (if-not (fn? f)
-    (throw (IllegalArgumentException. (str  "Cannot apply a non-function: "  f "  - args: " args))))
+          (throw (IllegalArgumentException. (str  "Cannot apply a non-function: "  f "  - args: " args))))
   (apply f args))
-
 
 (defn ->pipeline
   "Create pipeline from declarative description."
@@ -115,7 +126,7 @@
   (if (satisfies? prot/MetamorphProto op)
     (prot/lift op params)
     (fn [ctx]
-      ;; (assert (contains? ctx :metamorph/data))
+      (assert (contains? ctx :metamorph/data))
       (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
 
 
@@ -184,10 +195,7 @@
 
 
 (comment
-  (pipe-it
-   "hello"
-   [(lift clojure.string/upper-case)])
-   
+
 
   (pipe-it
    "hello"

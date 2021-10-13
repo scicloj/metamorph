@@ -173,12 +173,12 @@
 
 (def lifted-pipeline
   (sut/pipeline
-   :anymode
+   {:metamorph/mode :anymode}
    (sut/lift regular-function-to-be-lifted 1 2)))
 
 (def declarative-lifted-pipeline
   (sut/->pipeline
-   [:anymode
+   [{:metamorph/mode :anymode}
     [:sut/lift ::regular-function-to-be-lifted 1 2]]))
 
 (def object-pipeline
@@ -187,20 +187,22 @@
 
 (def declarative-object-pipeline
   (sut/->pipeline
-   [:anymode
+   [{:metamorph/mode :anymode}
     [:sut/lift ::object-that-can-be-lifted 1 2]]))
 
 
 (def expected-result
   {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)"})
 
+(def expected-result-with-mode
+  {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)" :metamorph/mode :anymode})
+
 (t/deftest lift-function
   (t/is (= ((sut/lift regular-function-to-be-lifted 1 2) {:metamorph/data nil}) expected-result))
-  (t/is (= (lifted-pipeline) expected-result))
-  (t/is (= (declarative-lifted-pipeline) expected-result))
-  (t/is (= (object-pipeline) expected-result))
-  (t/is (= (declarative-object-pipeline) expected-result)))
-
+  (t/is (= (lifted-pipeline {:metamorph/data :something}) expected-result-with-result))
+  (t/is (= (declarative-lifted-pipeline {:metamorph/data :something}) expected-result-with-mode))
+  (t/is (= (object-pipeline {:metamorph/data :something}) expected-result))
+  (t/is (= (declarative-object-pipeline {:metamorph/data :something}) expected-result-with-mode)))
 
 (t/deftest fit-transform
 
@@ -220,6 +222,36 @@
 
     (t/is (= "WORLD" (:metamorph/data transformed)))
     (t/is (= :transform (:metamorph/mode transformed)))))
+
+
+(t/deftest fail-proper-on-nonfn
+  (t/is (thrown? IllegalArgumentException
+                 (sut/pipe-it
+                  "hello"
+
+                  [(sut/lift clojure.string/upper-case)]))))
+
+(t/deftest fail-proper-on-nonfn
+  (t/is (thrown? IllegalArgumentException
+                 (sut/pipe-it "hello" first))))
+
+(t/deftest non-ctx-result-does-not-fail
+  (t/is (= {:a :blub}
+           ((sut/pipeline (fn [ctx] {:a :blub}))))))
+
+
+(t/deftest various-lifts
+  (t/is (= {:metamorph/data "HELLO"}
+           ((sut/pipeline l-x) {:metamorph/data "hello"})))
+
+  (t/is (= {:metamorph/data "HELLO"}
+           ((sut/pipeline (sut/lift x)) {:metamorph/data "hello"})))
+
+
+  (t/is (= {:metamorph/data "HELLO"}
+           ((sut/pipeline
+             {:metamorph/id :test} (sut/lift x))
+            {:metamorph/data "hello"}))))
 
 
 (comment
