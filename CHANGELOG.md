@@ -1,7 +1,8 @@
 # Change Log
 
 
-
+## 0.2.3
+ - fixed failing test
 ## 0.2.0
 - added three pipeline helper functions
 - addded fit / transform helpers

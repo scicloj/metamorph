@@ -4,7 +4,7 @@
   <groupId>scicloj</groupId>
   <artifactId>metamorph</artifactId>
   <packaging>jar</packaging>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <name>metamorph</name>
   <description>Context based pipeline.</description>
   <url>https://github.com/scicloj/metamorph</url>
@@ -18,7 +18,7 @@
     <url>https://github.com/scicloj/metamorph</url>
     <connection>scm:git:git://github.com/scicloj/metamorph.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/scicloj/metamorph.git</developerConnection>
-    <tag>9c3f35e909faf1fd9d0b56bc442271e26d1ad19a</tag>
+    <tag>877eed52016d1cd3f75849f84721209c7fcd35f4</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>

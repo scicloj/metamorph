@@ -199,7 +199,7 @@
 
 (t/deftest lift-function
   (t/is (= ((sut/lift regular-function-to-be-lifted 1 2) {:metamorph/data nil}) expected-result))
-  (t/is (= (lifted-pipeline {:metamorph/data :something}) expected-result-with-result))
+  (t/is (= (lifted-pipeline {:metamorph/data :something}) expected-result-with-mode))
   (t/is (= (declarative-lifted-pipeline {:metamorph/data :something}) expected-result-with-mode))
   (t/is (= (object-pipeline {:metamorph/data :something}) expected-result))
   (t/is (= (declarative-object-pipeline {:metamorph/data :something}) expected-result-with-mode)))
