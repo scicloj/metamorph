@@ -46,13 +46,13 @@ Functions which only manipulate the data, should simply behave the same in any :
 ### Compliant operations
 All the steps of a metamorph pipeline are functions which need to follow the following conventions, in order to work well together:
 
-* Be usual Clojure functions which have at least one parameter, and this first parameter need to be a mapm teh context map. This map can potentially contain any key.
+* Be usual Clojure functions which have at least one parameter, and this first parameter need to be a map, the context map. This map can potentially contain any key.
 * Keys of namespace :metamorph/xxx should be avoided and are reserved for usage by metamorph itself.
 * The value of a compliant function, need to be a function which takes as input the context and which value is the context. The function is allowed to add any keys with any value to the context map, but should not remove any key. 
 * The object under `:metamorph/data` is considered to be the main data object, which nearly all functions will interact with. A functions which only interacts with this main data object, needs nevertheless return  the whole context map with the data at key `:metamorph/data`
-* Each function which reads or  writes specific keys to the pipeline context, should document this and use namespaced keys to avoid conflicts
+* Each function which reads or writes specific keys to the pipeline context, should document this and use namespaced keys to avoid conflicts
 * Any pipeline function should **only** interact with the context map. It should neither read nor write anything outside the context. This is important, as it makes the whole pipleine completely self contained, and it can be re-executed anywehere, for example on new data.
-   * Pipeline functions should be pure functions
+* Pipeline functions should be pure functions
 
 A typical skeleton of a compliant function looks like this:
 
