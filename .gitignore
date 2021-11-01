@@ -9,3 +9,13 @@ profiles.clj
 /.prepl-port
 .hgignore
 .hg/
+/.calva/
+/.classpath
+/.clj-kondo/
+/.cpcache/
+/.lsp/
+/.project
+/.rebel_readline_history
+/.settings/
+/README.html
+/pom.xml.asc

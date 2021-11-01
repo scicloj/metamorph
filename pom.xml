@@ -18,7 +18,7 @@
     <url>https://github.com/scicloj/metamorph</url>
     <connection>scm:git:git://github.com/scicloj/metamorph.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/scicloj/metamorph.git</developerConnection>
-    <tag>877eed52016d1cd3f75849f84721209c7fcd35f4</tag>
+    <tag>e4560bbb3484a7729120b5e990f4dc3744a47971</tag>
   </scm>
   <build>
     <sourceDirectory>src</sourceDirectory>
