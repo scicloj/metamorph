@@ -2,8 +2,6 @@
   (:require [scicloj.metamorph.core :as sut]
             [clojure.test :as t]
             [scicloj.metamorph.protocols :as prot]))
-            
-
 
 (defn gen-rand
   [s]
@@ -11,8 +9,6 @@
     #(let [n (first @x)]
        (swap! x rest)
        n)))
-
-
 
 (defn context-operator
   [ctx]

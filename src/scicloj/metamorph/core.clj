@@ -1,17 +1,18 @@
 (ns scicloj.metamorph.core
   (:require [scicloj.metamorph.protocols :as prot]))
 
+(defn ^:deprecated uuid
+  "DEPRECATED: Use clojure.core/random-uuid instead"
+  []
+  (random-uuid))
 
-(defn uuid []
-  (java.util.UUID/randomUUID))
-
-
-(defn check-metamorph-compliant [ctx op]
+(defn check-metamorph-compliant
+  [ctx op]
   (cond
     (keyword? op) ctx
-    (not  (map? ctx)) (throw (IllegalArgumentException.  (str  "Metamorph pipe functions need to return a map, but returned: " ctx "of class: " (type ctx))))
-    (not  (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
-    true ctx))
+    (not (map? ctx)) (throw (IllegalArgumentException.  (str  "Metamorph pipe functions need to return a map, but returned: " ctx "of class: " (type ctx))))
+    (not (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta #'op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
+    :else ctx))
 
 (defn pipeline
   "Create a metamorph pipeline function out of operators.
@@ -44,12 +45,11 @@
 
 (defn- process-map
   [config params]
-  (into {} (map (fn [[k v]]
-                  [k (process-param config v)]) params)))
+  (update-vals params #(process-param config %)))
 
 (defn- process-seq
   [config params]
-  (mapv (fn [p] (process-param config p)) params))
+  (mapv #(process-param config %) params))
 
 (defn- resolve-keyword
   "Interpret keyword as a symbol and try to resolve it."
@@ -65,7 +65,6 @@
     ;; (println "resolved-as: " resolved-as)
     resolved-as))
 
-
 (defn- maybe-var-get
   "If symbol can be resolved, return var, else return original keyword"
   [k]
@@ -78,7 +77,7 @@
   Special case for namespaced keyword is `ctx` namespace. It means that we should look up in `config` map."
   [config p]
   (cond
-    (and (keyword? p) ;; 
+    (and (keyword? p) ;;
          (let [n (namespace p)]
            (and n (or (= n "ctx")
                       (let [sn (symbol n)]
@@ -90,11 +89,10 @@
     (sequential? p) (process-seq config p)
     :else p))
 
-
 (defn log-and-apply [f args]
-  (if-not (fn? f)
-          (throw (IllegalArgumentException. (str  "Cannot apply a non-function: "  f "  - args: " args))))
-  (apply f args))
+  (if (fn? f)
+    (apply f args)
+    (throw (IllegalArgumentException. (str  "Cannot apply a non-function: "  f "  - args: " args)))))
 
 (defn ->pipeline
   "Create pipeline from declarative description."
@@ -126,7 +124,6 @@
       (assert (contains? ctx :metamorph/data))
       (assoc ctx :metamorph/data (apply op (:metamorph/data ctx) params)))))
 
-
 (defn do-ctx
   "Apply f:: ctx -> any, ignore the result, leaving
    pipeline unaffected.  Akin to using doseq for side-effecting
@@ -142,9 +139,6 @@
   [varname]
   `(do-ctx (fn [ctx#] (def ~varname ctx#))))
 
-
-
-
 (defn pipe-it
   "Takes a data objects, executes the pipeline op(s) with it in :metamorph/data
   in mode :fit and returns content of :metamorph/data.
@@ -154,11 +148,6 @@
     (:metamorph/data
      (pipe-fn {:metamorph/data data
                :metamorph/mode :fit}))))
-               
-    
-  
-
-
 
 (defn fit
   "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
@@ -168,7 +157,6 @@
   (let [pipe-fn (apply pipeline ops)]
     (pipe-fn {:metamorph/data data
               :metamorph/mode :fit})))
-              
 
 (defn fit-pipe
   "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
@@ -177,7 +165,6 @@
   [data pipe-fn]
   (pipe-fn {:metamorph/data data
             :metamorph/mode :fit}))
-            
 
 (defn transform-pipe
   "Helper functions which execute the passed `pipe-fn` on the given `data` in mode :transform.
@@ -188,22 +175,14 @@
    (merge ctx
           {:metamorph/data data
            :metamorph/mode :transform})))
-           
-
 
 (comment
-
 
   (pipe-it
    "hello"
    (lift clojure.string/upper-case)
    (lift clojure.string/lower-case))
-   
-
 
   (pipe-it2
    "hello"
    (lift clojure.string/upper-case)))
-   
-
-  
