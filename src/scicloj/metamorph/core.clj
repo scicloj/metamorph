@@ -7,13 +7,10 @@
 
 
 (defn check-metamorph-compliant [ctx op]
-
-  (def op op)
-  (def ctx ctx)
   (cond
     (keyword? op) ctx
     (not  (map? ctx)) (throw (IllegalArgumentException.  (str  "Metamorph pipe functions need to return a map, but returned: " ctx "of class: " (type ctx))))
-    (not  (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta #'op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
+    (not  (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
     true ctx))
 
 (defn pipeline
