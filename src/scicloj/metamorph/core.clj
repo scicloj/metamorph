@@ -68,9 +68,8 @@
 (defn- maybe-var-get
   "If symbol can be resolved, return var, else return original keyword"
   [k]
-  (if-let [rk (resolve-keyword k)]
-    (var-get rk)
-    k))
+  (or (some-> k resolve-keyword var-get)
+      k))
 
 (defn- process-param
   "Recursively process parameters and try to resolve symbols for namespaced keywords.
