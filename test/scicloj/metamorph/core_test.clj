@@ -242,26 +242,11 @@
 
 (t/deftest various-lifts
   (t/is (= {:metamorph/data "HELLO"}
-           ((sut/pipeline l-x) {:metamorph/data "hello"})))
-
-  (t/is (= {:metamorph/data "HELLO"}
-           ((sut/pipeline (sut/lift x)) {:metamorph/data "hello"})))
+           ((sut/pipeline (sut/lift clojure.string/upper-case))
+            {:metamorph/data "hello"})))
 
 
   (t/is (= {:metamorph/data "HELLO"}
            ((sut/pipeline
-             {:metamorph/id :test} (sut/lift x))
+             {:metamorph/id :test} (sut/lift clojure.string/upper-case))
             {:metamorph/data "hello"}))))
-
-
-(comment
-  (defn do-on-string [s f]
-    (apply f s))
-
-  (def pip
-    (sut/->pipeline
-     [
-      [sut/lift ::do-on-string 'clojure.string/upper-case]]))
-
-
-  (pip {:metamorph/data  "a"}))
