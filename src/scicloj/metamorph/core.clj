@@ -28,6 +28,7 @@
        (let [ctx (if-not (map? ctx)
                    {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
          (reduce (fn [curr-ctx [id op]]         ;; go through operations
+                   (assert (some? op) "op cannot be nil")
                    (if (map? op) ;; map means to be merged with following operation
                      (merge curr-ctx op) ;; set current mode
                      (if (ifn? op)
