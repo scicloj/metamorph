@@ -11,7 +11,7 @@
   (cond
     (keyword? op) ctx
     (not (map? ctx)) (throw (IllegalArgumentException.  (str  "Metamorph pipe functions need to return a map, but returned: " ctx "of class: " (type ctx))))
-    (not (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta #'op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
+    (not (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
     :else ctx))
 
 (defn pipeline
@@ -26,8 +26,7 @@
     (fn local-pipeline
       ([] (local-pipeline {})) ;; can be called without a context
       ([ctx]
-       (let [ctx (if-not (map? ctx)
-                   {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
+       (let [ctx (if-not (map? ctx) {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
          (reduce (fn [curr-ctx [id op]]         ;; go through operations
                    (assert (some? op) "op cannot be nil")
                    (if (map? op) ;; map means to be merged with following operation
