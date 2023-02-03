@@ -14,6 +14,26 @@
     (not (contains? ctx :metamorph/data)) (do (println "Context after operation " op " with meta " (meta op) "does not contain :metamorph/data. This is likely as mistake.") ctx)
     :else ctx))
 
+(defn- process-operation
+  "Process an operation on the given context."
+  [ctx [id op]]
+  (assert (some? op) "op cannot be nil")
+  (cond
+    (map? op) (merge ctx op)
+    (ifn? op) (-> ctx
+                  (assoc :metamorph/id (get ctx :metamorph/id id))
+                  (op)
+                  (check-metamorph-compliant op)
+                  (dissoc :metamorph/id))
+    :else (throw (IllegalArgumentException. (str "Cannot call a non function: " op)))))
+
+(defn- local-pipeline
+  "Execute  a list of operations on the given context."
+  ([ops-with-id] (local-pipeline ops-with-id {}))
+  ([ops-with-id ctx]
+   (let [ctx (if-not (map? ctx) {:metamorph/data ctx} ctx)]
+     (reduce process-operation ctx ops-with-id))))
+
 (defn pipeline
   "Create a metamorph pipeline function out of operators.
 
@@ -22,23 +42,9 @@
   This function returns a function, whcih can ve execute with a ctx as parameter.
   "
   [& ops]
-  (let [ops-with-id (mapv #(vector (uuid) %) ops)] ;; add uuid to each operation
-    (fn local-pipeline
-      ([] (local-pipeline {})) ;; can be called without a context
-      ([ctx]
-       (let [ctx (if-not (map? ctx) {:metamorph/data ctx} ctx)] ;; if context is not a map, pack it to the map
-         (reduce (fn [curr-ctx [id op]]         ;; go through operations
-                   (assert (some? op) "op cannot be nil")
-                   (if (map? op) ;; map means to be merged with following operation
-                     (merge curr-ctx op) ;; set current mode
-                     (if (ifn? op)
-                       (-> curr-ctx
-                           (assoc :metamorph/id (get curr-ctx :metamorph/id id)) ;; assoc id of the operation
-                           (op)         ; call it
-                           (check-metamorph-compliant op)
-                           (dissoc :metamorph/id)) ;; dissoc id
-                       (throw (IllegalArgumentException. (str "Cannot call a non function: " op))))))
-                 ctx ops-with-id))))))
+  (->> ops
+       (mapv #(vector (uuid) %)) ;; adds a uuid to every operation
+       (partial local-pipeline))) ;; return a partialized version of local-pipeline with all the ops
 
 (declare process-param)
 
