@@ -1,7 +1,8 @@
 # Change Log
 
 ## unreleased
-checked for misisng op
+- checked for misisng op
+- refactored, thanks to @erickisos
 
 ## 0.2.3
  - fixed failing test
