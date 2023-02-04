@@ -136,7 +136,7 @@ or by using them from compliant libraries.
 
 Most functions in [tablecloth](https://github.com/scicloj/tablecloth) take a dataset as input in first position, and return a dataset.
 This means they can be used with the function "metamorhp.core/lift" to be converted (lifted) into a metamorph compliant function.
-(Tabecloth will make lifted versions of their functions available soon)
+(Tabecloth has lifted versions of its functions in namespace `tablecloth.pipeline`)
 
 In this short example, the main data object in the context is a simple string.
 
