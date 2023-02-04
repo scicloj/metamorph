@@ -174,14 +174,3 @@
    (merge ctx
           {:metamorph/data data
            :metamorph/mode :transform})))
-
-(comment
-
-  (pipe-it
-   "hello"
-   (lift clojure.string/upper-case)
-   (lift clojure.string/lower-case))
-
-  (pipe-it2
-   "hello"
-   (lift clojure.string/upper-case)))

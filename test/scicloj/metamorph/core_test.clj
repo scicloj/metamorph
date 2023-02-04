@@ -1,7 +1,9 @@
 (ns scicloj.metamorph.core-test
-  (:require [scicloj.metamorph.core :as sut]
-            [clojure.test :as t]
-            [scicloj.metamorph.protocols :as prot]))
+  (:require
+   [clojure.string :as string]
+   [clojure.test :as t]
+   [scicloj.metamorph.core :as sut]
+   [scicloj.metamorph.protocols :as prot]))
 
 (defn gen-rand
   [s]
@@ -204,7 +206,7 @@
 
   (let [pipe-fn
         (sut/pipeline
-         (sut/lift clojure.string/upper-case))
+         (sut/lift string/upper-case))
 
         fitted
         (sut/fit
@@ -225,7 +227,7 @@
                  (sut/pipe-it
                   "hello"
 
-                  [(sut/lift clojure.string/upper-case)]))))
+                  [(sut/lift string/upper-case)]))))
 
 (t/deftest fail-proper-on-nonfn
   (t/is (thrown? IllegalArgumentException
@@ -233,16 +235,16 @@
 
 (t/deftest non-ctx-result-does-not-fail
   (t/is (= {:a :blub}
-           ((sut/pipeline (fn [ctx] {:a :blub}))))))
+           ((sut/pipeline (fn [_] {:a :blub}))))))
 
 
 (t/deftest various-lifts
   (t/is (= {:metamorph/data "HELLO"}
-           ((sut/pipeline (sut/lift clojure.string/upper-case))
+           ((sut/pipeline (sut/lift string/upper-case))
             {:metamorph/data "hello"})))
 
 
   (t/is (= {:metamorph/data "HELLO"}
            ((sut/pipeline
-             {:metamorph/id :test} (sut/lift clojure.string/upper-case))
+             {:metamorph/id :test} (sut/lift string/upper-case))
             {:metamorph/data "hello"}))))
