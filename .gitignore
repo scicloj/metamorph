@@ -19,3 +19,4 @@ profiles.clj
 /.settings/
 /README.html
 /pom.xml.asc
+/deps.local.edn
