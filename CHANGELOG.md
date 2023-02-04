@@ -3,6 +3,7 @@
 ## unreleased
 - checked for misisng op
 - refactored, thanks to @erickisos
+- changed to deps.edn based build
 
 ## 0.2.3
  - fixed failing test
