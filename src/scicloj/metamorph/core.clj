@@ -35,11 +35,11 @@
      (reduce process-operation ctx ops-with-id))))
 
 (defn pipeline
-  "Create a metamorph pipeline function out of operators.
+  "Creates a metamorph pipeline function out of operators.
 
-  `ops` are metamorph compliant functions (basicaly fn, which takle a ctx as first argument)
+  `ops` are metamorph compliant functions (basicaly fn, which take a ctx as first argument)
 
-  This function returns a function, whcih can ve execute with a ctx as parameter.
+  This function returns a function, which can be executed with a ctx as parameter.
   "
   [& ops]
   (->> ops
@@ -119,7 +119,7 @@
 ;; lifting
 
 (defn lift
-  "Create context aware version of the given `op` function. `:metamorph/data` will be used as a first parameter.
+  "Creates a context aware version of the given `op` function. `:metamorph/data` will be used as a first parameter.
 
   Result of the `op` function will be stored under `:metamorph/data`"
   [op & params]
