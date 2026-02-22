@@ -1,6 +1,8 @@
 # Change Log
 
 ## unreleased
+
+## 0.2.4
 - checked for misisng op
 - refactored, thanks to @erickisos
 - changed to deps.edn based build
