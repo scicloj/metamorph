@@ -75,6 +75,8 @@ The following libraries provied metamorph compliant functions in a recent versio
 |tech.ml.dataset  |  dataset manipulation  |  https://github.com/techascent/tech.ml.dataset    |
 |metamorph.ml     |  machine learning    |  https://github.com/scicloj/metamorph.ml |
 |sklearn-clj      |  sklearn estimators as metamorph functions |  https://github.com/scicloj/sklearn-clj |
+|scicloj.ml.smile | ML algorithms from [Smile](https://haifengl.github.io/)   |  https://github.com/scicloj/scicloj.ml.smile| 
+|scicloj.ml.tribuo | ML algorithms from [Tribuo](https://https://tribuo.org/)   |  [https://github.com/scicloj/scicloj.ml.tribuo](https://github.com/scicloj/scicloj.ml.tribuo)| 
 
 
 Other libraries which do "data transformations" can decide to make their functions metamorph compliant.
