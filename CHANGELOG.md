@@ -1,6 +1,7 @@
 # Change Log
 
 ## unreleased
+- added  'fit-transform' helper
 
 ## 0.2.4
 - checked for misisng op
