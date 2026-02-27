@@ -180,3 +180,14 @@
    (merge ctx
           {:metamorph/data data
            :metamorph/mode :transform})))
+
+(defn fit-transform [data pipe]
+  "Helper functions which combines fit and transform of a dataset.
+  Usefull when working with some form of  `unsupervised` models.
+
+  `data` The data to fit-transform
+  `pipe` The pipeline-fn use to transform the data
+  "
+  (let [fitted (fit-pipe data pipe)]
+    (transform-pipe data pipe fitted)))
+
