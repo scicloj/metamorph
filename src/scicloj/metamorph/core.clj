@@ -144,27 +144,6 @@
   [varname]
   `(do-ctx (fn [ctx#] (def ~varname ctx#))))
 
-(defn pipe-it
-  "Takes a data objects, executes the pipeline op(s) with it in :metamorph/data
-  in mode :fit and returns content of :metamorph/data.
-  Usefull to use execute a pipeline of pure data->data functions on some data"
-  [data & ops]
-  (let [pipe-fn (apply pipeline ops)]
-    (:metamorph/data
-     (pipe-fn {:metamorph/data data
-               :metamorph/mode :fit}))))
-
-(defn fit
-  "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
-
-  Main use is for cases in which the pipeline gets executed ones and no model is part of the pipeline."
-  [data & ops]
-  (let [pipe-fn (apply pipeline ops)]
-    (pipe-fn {:metamorph/data data
-              :metamorph/mode :fit})))
-
-
-
 (defn fit-pipe
   "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
 
@@ -172,6 +151,25 @@
   [data pipe-fn]
   (pipe-fn {:metamorph/data data
             :metamorph/mode :fit}))
+
+
+(defn fit
+  "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
+
+  Main use is for cases in which the pipeline gets executed ones and no model is part of the pipeline."
+  [data & ops]
+  (let [pipe-fn (apply pipeline ops)]
+    (fit-pipe data pipe-fn)))
+
+(defn pipe-it
+  "Takes a data objects, executes the pipeline op(s) with it in :metamorph/data
+  in mode :fit and returns content of :metamorph/data.
+  Useful to use execute a pipeline of pure data->data functions on some data"
+  [data & ops]
+  (:metamorph/data
+   (fit data ops)))
+
+
 
 (defn transform-pipe
   "Helper functions which execute the passed `pipe-fn` on the given `data` in mode :transform.
