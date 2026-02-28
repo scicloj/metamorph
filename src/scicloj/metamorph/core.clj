@@ -167,7 +167,7 @@
   Useful to use execute a pipeline of pure data->data functions on some data"
   [data & ops]
   (:metamorph/data
-   (fit data ops)))
+   (apply fit data ops)))
 
 
 

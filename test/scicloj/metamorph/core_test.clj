@@ -3,7 +3,8 @@
    [clojure.string :as string]
    [clojure.test :as t]
    [scicloj.metamorph.core :as sut]
-   [scicloj.metamorph.protocols :as prot]))
+   [scicloj.metamorph.protocols :as prot]
+   [clojure.string :as str]))
 
 (defn gen-rand
   [s]
@@ -179,9 +180,15 @@
    [{:metamorph/mode :anymode}
     [:sut/lift ::object-that-can-be-lifted 1 2]]))
 
-
-(def expected-result
-  {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)"})
+(t/deftest pipe-it
+  (t/is (= "HELLO"
+           (sut/pipe-it 
+            "hello"
+            (sut/lift str/upper-case) 
+            ))))
+ 
+ (def expected-result
+   {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)"}))
 
 (def expected-result-with-mode
   {:metamorph/data "Hey, I'm regular function! (pars: 1, 2)" :metamorph/mode :anymode})
@@ -194,7 +201,6 @@
   (t/is (= (declarative-object-pipeline {:metamorph/data :something}) expected-result-with-mode)))
 
 (def upper-case-pipe-fn
-
   (sut/pipeline
    (sut/lift string/upper-case)))
 
