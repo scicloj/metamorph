@@ -6,7 +6,7 @@
   []
   (random-uuid))
 
-(defn check-metamorph-compliant
+(defn- check-metamorph-compliant
   [ctx op]
   (cond
     (keyword? op) ctx
@@ -94,7 +94,7 @@
     (sequential? p) (process-seq config p)
     :else p))
 
-(defn log-and-apply [f args]
+(defn- log-and-apply [f args]
   (if (fn? f)
     (apply f args)
     (throw (IllegalArgumentException. (str  "Cannot apply a non-function: "  f "  - args: " args)))))
