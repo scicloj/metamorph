@@ -1,13 +1,8 @@
 {:paths ["src" "target/classes"]
- :deps {
-        org.clojure/clojure           {:mvn/version "1.12.4"}}
- :aliases {
-
-
-           :build {:deps {io.github.seancorfield/build-clj
+ :deps {org.clojure/clojure           {:mvn/version "1.12.4"}}
+ :aliases {:build {:deps {io.github.seancorfield/build-clj
                           {:git/tag "v0.4.0" :git/sha "54e39ae"}}
                    :ns-default build}
-
            :run-tests {:main-opts ["-m" "kaocha.runner"]}
            :test {:extra-paths ["test"]
 

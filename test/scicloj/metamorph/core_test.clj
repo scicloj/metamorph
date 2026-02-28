@@ -39,23 +39,23 @@
    [:operator-creator :ctx/a :ctx/b]]) ;; optional parameters
 
 (with-redefs
-  [scicloj.metamorph.core/uuid
-   (gen-rand (range 10))])
-   
+ [scicloj.metamorph.core/uuid
+  (gen-rand (range 10))])
 
-  
+
+
 
 (def dpipeline-1
   (with-redefs
-    [scicloj.metamorph.core/uuid
-     (gen-rand (range 10))]
+   [scicloj.metamorph.core/uuid
+    (gen-rand (range 10))]
     (sut/->pipeline {:a -1 :b -2} pipeline-declaration)))
 
 (def dpipeline-2
- (with-redefs
+  (with-redefs
    [scicloj.metamorph.core/uuid
     (gen-rand (range 10))]
-   (sut/->pipeline {:a 100 :b 1000} pipeline-declaration)))
+    (sut/->pipeline {:a 100 :b 1000} pipeline-declaration)))
 
 (defn make-pipeline
   [a b]
@@ -69,24 +69,16 @@
 
 (def pipeline-1
   (with-redefs
-    [scicloj.metamorph.core/uuid
-     (gen-rand (range 10))]
+   [scicloj.metamorph.core/uuid
+    (gen-rand (range 10))]
     (make-pipeline -1 -2)))
 
 (def pipeline-2
   (with-redefs
-    [scicloj.metamorph.core/uuid
-     (gen-rand (range 10))]
+   [scicloj.metamorph.core/uuid
+    (gen-rand (range 10))]
     (make-pipeline 100 1000)))
 
-;; (pipeline-1 [])
-;; => {:metamorph/data [[3 4] [123.1 432.1] [-1 -2]],
-;;     0 {:modes (nil)},
-;;     1 7,
-;;     2 555.2,
-;;     :metamorph/mode :new-mode,
-;;     4 {:modes (:new-mode)},
-;;     5 -3}
 
 (def res11 {:metamorph/data [[3 4] [123.1 432.1] [-1 -2]]
             0 {:modes '(nil)}
@@ -119,9 +111,9 @@
 
 (def pipeline-3
   (with-redefs
-    [scicloj.metamorph.core/uuid
-     (gen-rand (range 10))]
-   (sut/pipeline
+   [scicloj.metamorph.core/uuid
+    (gen-rand (range 10))]
+    (sut/pipeline
      {:metamorph/id :test-id}
      (operator-creator 1 2))))
 
@@ -133,11 +125,10 @@
 
 (def dpipeline-3
   (with-redefs
-    [scicloj.metamorph.core/uuid
-     (gen-rand (range 10))]
+   [scicloj.metamorph.core/uuid
+    (gen-rand (range 10))]
     (sut/->pipeline
-     [
-      {:metamorph/id :test-id}
+     [{:metamorph/id :test-id}
       [:operator-creator 1 2]])))
 
 
@@ -148,7 +139,7 @@
 
 
 (t/deftest whole-process
-  
+
   (t/is (= (pipeline-1 []) res11))
   (t/is (= (pipeline-1 (assoc (pipeline-1 []) :metamorph/mode :some-mode)) res12))
   (t/is (= (pipeline-2 []) res21))
@@ -202,19 +193,19 @@
   (t/is (= (object-pipeline {:metamorph/data :something}) expected-result))
   (t/is (= (declarative-object-pipeline {:metamorph/data :something}) expected-result-with-mode)))
 
+(def upper-case-pipe-fn
+
+  (sut/pipeline
+   (sut/lift string/upper-case)))
+
 (t/deftest fit-transform
-
-  (let [pipe-fn
-        (sut/pipeline
-         (sut/lift string/upper-case))
-
-        fitted
+  (let [fitted
         (sut/fit
          "hello"
-         pipe-fn)
+         upper-case-pipe-fn)
 
         transformed
-        (sut/transform-pipe "world" pipe-fn fitted)]
+        (sut/transform-pipe "world" upper-case-pipe-fn fitted)]
     (t/is (= "HELLO" (:metamorph/data fitted)))
     (t/is (= :fit (:metamorph/mode fitted)))
 
@@ -229,7 +220,7 @@
 
                   [(sut/lift string/upper-case)]))))
 
-(t/deftest fail-proper-on-nonfn
+(t/deftest fail-proper-on-nonfn-2
   (t/is (thrown? IllegalArgumentException
                  (sut/pipe-it "hello" first))))
 
@@ -248,3 +239,8 @@
            ((sut/pipeline
              {:metamorph/id :test} (sut/lift string/upper-case))
             {:metamorph/data "hello"}))))
+
+(t/deftest  fit-transform-pipe
+  (t/is (= {:metamorph/data "HELLO" :metamorph/mode :transform}
+           (sut/fit-transform-pipe
+            "hello" upper-case-pipe-fn))))

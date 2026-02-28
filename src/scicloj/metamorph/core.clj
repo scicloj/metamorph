@@ -163,6 +163,8 @@
     (pipe-fn {:metamorph/data data
               :metamorph/mode :fit})))
 
+
+
 (defn fit-pipe
   "Helper function which executes pipeline op(s) in mode :fit on the given data and returns the fitted ctx.
 
@@ -181,13 +183,14 @@
           {:metamorph/data data
            :metamorph/mode :transform})))
 
-(defn fit-transform [data pipe]
+(defn fit-transform-pipe 
   "Helper functions which combines fit and transform of a dataset.
-  Usefull when working with some form of  `unsupervised` models.
+  Useful when working with some form of  `unsupervised` models.
 
   `data` The data to fit-transform
   `pipe` The pipeline-fn use to transform the data
   "
+  [data pipe]
   (let [fitted (fit-pipe data pipe)]
     (transform-pipe data pipe fitted)))
 
