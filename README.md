@@ -2,6 +2,8 @@
 
 # metamorph
 
+<img src="Metamorph.svg" alt="metamorph logo" width="100" align="right"/>
+
 A Clojure library for building composable data transformation and machine learning pipelines using pure functions.
 
 ## Table of Contents
